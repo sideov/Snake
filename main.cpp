@@ -25,17 +25,14 @@ int main() {
         screen.cls();
         CGame game(screen, 80, 24, 120);
 
-        game.logo();
 
-        //game.read_top10();
-        //game.top10(false);
-        game.pak(18);
+        //game.pak(18);
 
         do {
             game.game_loop();
-            game.top10(true);
+            //game.top10(true);
 
-        } while (game.once_more());
+        } while (true);
 
         game.goodbye();
     }

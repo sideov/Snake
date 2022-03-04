@@ -329,7 +329,7 @@ void CGame::game_loop() {
 
     } while (stt == STATE_OK);          // играем, пока змея жива
 
-    scr.pos_str(width / 2 - 8, 10, " G a m e    o v e r ");
+    //scr.pos_str(width / 2 - 8, 10, " G a m e    o v e r ");
     clearkeys();
     _getch();
     clearkeys();
