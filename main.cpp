@@ -3,7 +3,7 @@
  * GNU GPL
  *
  * Game "Oldschool Snake
- *
+ * oaoaoaoa
  */
 
 #include <iostream>

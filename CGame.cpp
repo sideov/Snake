@@ -278,7 +278,7 @@ void CGame::game_loop() {
 
         // обработка команд
         switch (cmd) {
-        case CMD_LEFT:
+        case CMD_LEFT:  // /////////////////////////////////////////////////////////////////////////
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
