@@ -15,6 +15,7 @@ struct SCoord {
 };
 
 SCoord operator +(const SCoord& op1, const SCoord& op2);
+SCoord operator -(const SCoord& op1, const SCoord& op2);
 bool operator ==(const SCoord& op1, const SCoord& op2);
 
 #endif // __SCOORD_H__
