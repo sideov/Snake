@@ -32,6 +32,8 @@ struct SRecord {
     void as_string(char *buffer);   // отформатированная строка результата
 };
 
+//czczczcxz//
+
 class CGame {
 public:
     CGame(CScreen& _scr, int _width = 80, int _height = 24, int _latency = 100);
