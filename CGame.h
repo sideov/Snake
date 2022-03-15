@@ -32,7 +32,7 @@ struct SRecord {
     void as_string(char *buffer);   // отформатированная строка результата
 };
 
-//czczczcxz//
+
 
 class CGame {
 public:
