@@ -49,6 +49,7 @@ public:
     void print_input(vector<float> stat);
     vector<int> correct_way(vector<float> info, SCoord food, SCoord head);
     void print_correct_way(vector<int> correct_way);
+    bool surrounded(SCoord head);
 
 private:
     enum Command { CMD_NOCOMMAND = 0, CMD_EXIT, CMD_LEFT, CMD_RIGHT, CMD_UP, CMD_DOWN };

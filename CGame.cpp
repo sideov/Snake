@@ -308,6 +308,26 @@ float distance(int x1,int y1,int x2,int y2) {
     return distance;
 }
 
+
+bool CGame::surrounded(SCoord head) {
+    vector<SCoord> delta = {SCoord(0,1), SCoord(1,0), SCoord(0,-1), SCoord(-1,0)};
+
+    int sur_side = 0;
+
+    for (int i = 0; i <= 3, i++) {
+        if (head.x == 0 || head.x == width-1 || head.y == 0 || head.y == height-1 || snake.into(head + delta[i])) sur_side += 1;
+    }
+
+    if (sur_side == 4) {
+        return true;
+    }
+    else {
+        return false;
+    }
+
+
+}
+
 vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act){
     int up = 0;
     int down = 0;
@@ -340,11 +360,12 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
 
 
     vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
+    vector<SCoord> delta = {SCoord(0,1), SCoord(1,0), SCoord(0,-1), SCoord(-1,0)};
 
     float min_delta_distance = 2;
 
     for (int i = 0; i <= 3; i++) {
-        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0){
+        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 && not surrounded(head+delta[i])){
             if (i == 0) {up = 1, right=0, down=0, left=0;}
             if (i == 1) {up = 0, right=1, down=0, left=0;}
             if (i == 2) {up = 0, right=0, down=1, left=0;}
