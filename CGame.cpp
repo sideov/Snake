@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cstring>
 #include <conio.h>
+#include <cstdio>
+#include <math.h>
 
 
 // форматная строка для форматирования результата игры
@@ -249,7 +251,20 @@ void CGame::goodbye() {
 const char FOOD = '$';      // символ для вывода еды
 
 
-void CGame::print_input(vector<int> input) {
+void CGame::print_correct_way(vector<int> correct_way) {
+    string up = std::to_string(correct_way[0]);
+    string right = std::to_string(correct_way[1]);
+    string down = std::to_string(correct_way[2]);
+    string left = std::to_string(correct_way[3]);
+
+    scr.pos_str(4, height + 5, up.c_str());
+    scr.pos_str(5, height + 5, right.c_str());
+    scr.pos_str(6, height + 5, down.c_str());
+    scr.pos_str(7, height + 5, left.c_str());
+
+}
+
+void CGame::print_input(vector<float> input) {
     string apple_above_snake = std::to_string(input[0]);
     string apple_right_snake = std::to_string(input[1]);
     string apple_below_snake = std::to_string(input[2]);
@@ -262,36 +277,100 @@ void CGame::print_input(vector<int> input) {
     string snake_dir_right =  std::to_string(input[9]);
     string snake_dir_down =  std::to_string(input[10]);
     string snake_dir_left =  std::to_string(input[11]);
+    string food_x = std::to_string(input[12]);
+    string food_y = std::to_string(input[13]);
+    string hd_x = std::to_string(input[14]);
+    string hd_y = std::to_string(input[15]);
 
-    scr.pos_str(1, height + 3, apple_above_snake.c_str());
-    scr.pos_str(2, height + 3, apple_right_snake.c_str());
-    scr.pos_str(3, height + 3, apple_below_snake.c_str());
-    scr.pos_str(4, height + 3, apple_left_snake.c_str());
-    scr.pos_str(5, height + 3, obstacle_above_snake.c_str());
-    scr.pos_str(6, height + 3, obstacle_right_snake.c_str());
-    scr.pos_str(7, height + 3, obstacle_below_snake.c_str());
-    scr.pos_str(8, height + 3, obstacle_left_snake.c_str());
-    scr.pos_str(9, height + 3, snake_dir_up.c_str());
-    scr.pos_str(10, height + 3, snake_dir_right.c_str());
-    scr.pos_str(11, height + 3, snake_dir_down.c_str());
-    scr.pos_str(12, height + 3, snake_dir_left.c_str());
+
+    scr.pos_str(1, height + 1, apple_above_snake.c_str());
+    scr.pos_str(2, height + 1, apple_right_snake.c_str());
+    scr.pos_str(3, height + 1, apple_below_snake.c_str());
+    scr.pos_str(4, height + 1, apple_left_snake.c_str());
+    scr.pos_str(5, height + 1, obstacle_above_snake.c_str());
+    scr.pos_str(6, height + 1, obstacle_right_snake.c_str());
+    scr.pos_str(7, height + 1, obstacle_below_snake.c_str());
+    scr.pos_str(8, height + 1, obstacle_left_snake.c_str());
+    scr.pos_str(9, height + 1, snake_dir_up.c_str());
+    scr.pos_str(10, height + 1, snake_dir_right.c_str());
+    scr.pos_str(11, height + 1, snake_dir_down.c_str());
+    scr.pos_str(12, height + 1, snake_dir_left.c_str());
+    scr.pos_str(13, height + 1, food_x.c_str());
+    scr.pos_str(13, height + 2, food_y.c_str());
+    scr.pos_str(13, height + 3, hd_x.c_str());
+    scr.pos_str(13, height + 4, hd_y.c_str());
+}
+
+float distance(int x1,int y1,int x2,int y2) {
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+    float distance = sqrt(dx*dx + dy*dy);
+    return distance;
+}
+
+vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act){
+    int up = 0;
+    int down = 0;
+    int right = 0;
+    int left = 0;
+    SCoord head = head_act;
+    SCoord head_up = head + SCoord(0,1);
+    SCoord head_right = head + SCoord(1,0);
+    SCoord head_down = head + SCoord(0,-1);
+    SCoord head_left = head + SCoord(-1,0);
+    float now_distance = distance(head.x, head.y, food.x, food.y);
+    float head_up_distance = distance(head_up.x, head_up.y, food.x, food.y);
+    float head_right_distance = distance(head_right.x, head_right.y, food.x, food.y);
+    float head_down_distance = distance(head_down.x, head_down.y, food.x, food.y);
+    float head_left_distance = distance(head_left.x, head_left.y, food.x, food.y);
+    float delta_up_distance = -head_up_distance + now_distance;
+    float delta_right_distance = head_right_distance-now_distance;
+    float delta_down_distance = -head_down_distance+now_distance;
+    float delta_left_distance = head_left_distance-now_distance;
+
+    string delta_up_dist_str = std::to_string(delta_up_distance);
+    string delta_right_dist_str = std::to_string(delta_right_distance);
+    string delta_down_dist_str = std::to_string(delta_down_distance);
+    string delta_left_dist_str = std::to_string(delta_left_distance);
+
+    scr.pos_str(width+3, 5, delta_up_dist_str.c_str());
+    scr.pos_str(width+3, 6, delta_right_dist_str.c_str());
+    scr.pos_str(width+3, 7, delta_down_dist_str.c_str());
+    scr.pos_str(width+3, 8, delta_left_dist_str.c_str());
+
+
+    vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
+
+    float min_delta_distance = 2;
+
+    for (int i = 0; i <= 3; i++) {
+        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0){
+            if (i == 0) {up = 1, right=0, down=0, left=0;}
+            if (i == 1) {up = 0, right=1, down=0, left=0;}
+            if (i == 2) {up = 0, right=0, down=1, left=0;}
+            if (i == 3) {up = 0, right=0, down=0, left=1;}
+            min_delta_distance = delta_distances[i];
+        }
+
+    }
+    vector<int> out = {up, right, down, left};
+    return out;
 
 }
 
-
-vector<int> CGame::info(SCoord food) {
-    int apple_above_snake = 0;
-    int apple_right_snake = 0;
-    int apple_below_snake = 0;
-    int apple_left_snake = 0;
-    int obstacle_above_snake = 0;
-    int obstacle_right_snake = 0;
-    int obstacle_below_snake = 0;
-    int obstacle_left_snake = 0;
-    int snake_dir_up = 0;
-    int snake_dir_right = 0;
-    int snake_dir_down = 0;
-    int snake_dir_left = 0;
+vector<float> CGame::info(SCoord food) {
+    float apple_above_snake = 0;
+    float apple_right_snake = 0;
+    float apple_below_snake = 0;
+    float apple_left_snake = 0;
+    float obstacle_above_snake = 0;
+    float obstacle_right_snake = 0;
+    float obstacle_below_snake = 0;
+    float obstacle_left_snake = 0;
+    float snake_dir_up = 0;
+    float snake_dir_right = 0;
+    float snake_dir_down = 0;
+    float snake_dir_left = 0;
 
     SCoord hd = snake.head();
     SCoord hd_pl_x = hd + SCoord(1,0);
@@ -304,21 +383,20 @@ vector<int> CGame::info(SCoord food) {
     if (hd.y == height-2 || snake.into(hd_pl_y)) obstacle_below_snake = 1;
     if (hd.x == width-2 || snake.into(hd_pl_x)) obstacle_right_snake = 1;
 
-    if (hd_pl_x == food) apple_right_snake = 1;
-    if (hd_pl_y == food) apple_above_snake = 1;
-    if (hd_mn_x == food) apple_left_snake = 1;
-    if (hd_mn_y == food) apple_below_snake = 1;
+    if (hd.x - food.x < 0) apple_right_snake = 1;
+    if (hd.y - food.y > 0) apple_above_snake = 1;
+    if (hd.x - food.x > 0) apple_left_snake = 1;
+    if (hd.y - food.y < 0) apple_below_snake = 1;
 
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(1,0)) snake_dir_right = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(-1,0)) snake_dir_left = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,1)) snake_dir_down = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,-1)) snake_dir_up = 1;
 
-
-    vector<int> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
+    vector<float> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
                        obstacle_above_snake, obstacle_right_snake, obstacle_below_snake, obstacle_left_snake,
-                       snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left};
-
+                       snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left,
+                         (float)food.x/(float)(width-2), (float)food.y/(float)(height-2), (float)hd.x/(float)(width-2), (float)hd.y/(float)(height-2)};
     return out;
 }
 
@@ -373,10 +451,16 @@ void CGame::game_loop() {
             break;
         };
 
-        vector<int> input = info(food);
+        vector<float> input = info(food);
         print_input(input);
 
+        vector<int> correct_w = correct_way(input, food, snake.head());
+        print_correct_way(correct_w);
 
+        if (correct_w[0] == 1) delta = SCoord(0,-1);
+        if (correct_w[1] == 1) delta = SCoord(1,0);
+        if (correct_w[2] == 1) delta = SCoord(0,1);
+        if (correct_w[3] == 1) delta = SCoord(-1,0);
 
 
 
@@ -392,7 +476,7 @@ void CGame::game_loop() {
             snake.move(delta, scr);     // сдвинуть змею на delta
 
             if (snake.head() == food) { // если координата головы змеи совпадает с координатой еды, то
-                snake.grow(food, 3);    // увеличить длину змеи
+                snake.grow(food, 1);    // увеличить длину змеи
                 food = make_food();     // вычислить координаты новой еды
                 scr.pos(food.x, food.y, FOOD); // вывести еду на экран
 
@@ -410,7 +494,7 @@ void CGame::game_loop() {
                 print_stat();           // вывод текущей статистики игры
             }
 
-            Sleep(latency);             // задержка перед следующим изменением позиции
+            Sleep(latency=0.1);             // задержка перед следующим изменением позиции
         }
 
     } while (stt == STATE_OK);          // играем, пока змея жива
