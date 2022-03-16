@@ -323,22 +323,35 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
     float head_right_distance = distance(head_right.x, head_right.y, food.x, food.y);
     float head_down_distance = distance(head_down.x, head_down.y, food.x, food.y);
     float head_left_distance = distance(head_left.x, head_left.y, food.x, food.y);
-    float delta_up_distance = now_distance - head_up_distance;
-    float delta_right_distance = now_distance - head_right_distance;
-    float delta_down_distance = now_distance - head_down_distance;
-    float delta_left_distance = now_distance - head_left_distance;
+    float delta_up_distance = -head_up_distance + now_distance;
+    float delta_right_distance = head_right_distance-now_distance;
+    float delta_down_distance = -head_down_distance+now_distance;
+    float delta_left_distance = head_left_distance-now_distance;
+
+    string delta_up_dist_str = std::to_string(delta_up_distance);
+    string delta_right_dist_str = std::to_string(delta_right_distance);
+    string delta_down_dist_str = std::to_string(delta_down_distance);
+    string delta_left_dist_str = std::to_string(delta_left_distance);
+
+    scr.pos_str(width+3, 5, delta_up_dist_str.c_str());
+    scr.pos_str(width+3, 6, delta_right_dist_str.c_str());
+    scr.pos_str(width+3, 7, delta_down_dist_str.c_str());
+    scr.pos_str(width+3, 8, delta_left_dist_str.c_str());
+
 
     vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
 
-    float min_delta_distance = 100.00;
+    float min_delta_distance = 2;
 
-    for (int i = 1; i <= 4; i++) {
-        if (delta_distances[i] < min_delta_distance && (int)info[3+i] == 0){
-            if (i == 1) {up = 1, right=0, down=0, left=0;}
-            if (i == 2) {up = 0, right=1, down=0, left=0;}
-            if (i == 3) {up = 0, right=0, down=1, left=0;}
-            if (i == 4) {up = 0, right=0, down=0, left=1;}
+    for (int i = 0; i <= 3; i++) {
+        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0){
+            if (i == 0) {up = 1, right=0, down=0, left=0;}
+            if (i == 1) {up = 0, right=1, down=0, left=0;}
+            if (i == 2) {up = 0, right=0, down=1, left=0;}
+            if (i == 3) {up = 0, right=0, down=0, left=1;}
+            min_delta_distance = delta_distances[i];
         }
+
     }
     vector<int> out = {up, right, down, left};
     return out;
@@ -444,6 +457,11 @@ void CGame::game_loop() {
         vector<int> correct_w = correct_way(input, food, snake.head());
         print_correct_way(correct_w);
 
+        if (correct_w[0] == 1) delta = SCoord(0,-1);
+        if (correct_w[1] == 1) delta = SCoord(1,0);
+        if (correct_w[2] == 1) delta = SCoord(0,1);
+        if (correct_w[3] == 1) delta = SCoord(-1,0);
+
 
 
         SCoord hd = snake.head();       // координата головы змеи
@@ -456,7 +474,7 @@ void CGame::game_loop() {
             snake.move(delta, scr);     // сдвинуть змею на delta
 
             if (snake.head() == food) { // если координата головы змеи совпадает с координатой еды, то
-                snake.grow(food, 3);    // увеличить длину змеи
+                snake.grow(food, 1);    // увеличить длину змеи
                 food = make_food();     // вычислить координаты новой еды
                 scr.pos(food.x, food.y, FOOD); // вывести еду на экран
 
@@ -474,7 +492,7 @@ void CGame::game_loop() {
                 print_stat();           // вывод текущей статистики игры
             }
 
-            Sleep(latency);             // задержка перед следующим изменением позиции
+            Sleep(latency=0.1);             // задержка перед следующим изменением позиции
         }
 
     } while (stt == STATE_OK);          // играем, пока змея жива
