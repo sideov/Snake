@@ -309,13 +309,62 @@ float distance(int x1,int y1,int x2,int y2) {
 }
 
 
-bool CGame::surrounded(SCoord head) {
-    vector<SCoord> delta = {SCoord(0,1), SCoord(1,0), SCoord(0,-1), SCoord(-1,0)};
+bool CGame::traced(SCoord head) {
+    vector<SCoord> delta = {SCoord(0,-1), SCoord(1,0), SCoord(0,1), SCoord(-1,0)};
+    bool left = false;
+    bool right = false;
+    bool up = false;
+    bool down = false;
+
+    for (int i = 1; i <= height; i++) {
+        if (snake.into(head + delta[0]*i)) {
+            up = true;
+            break;
+        }
+    }
+    for (int i = 1; i <= width; i++) {
+        if (snake.into(head + delta[1]*i)) {
+            right = true;
+            break;
+        }
+    }
+    for (int i = 1; i <= height; i++) {
+        if (snake.into(head + delta[2]*i)) {
+            down = true;
+            break;
+        }
+
+    }
+    for (int i = 1; i <= width; i++) {
+        if (snake.into(head + delta[3]*i)) {
+            left = true;
+            break;
+        }
+    }
+
+    if (left && right && down && up) return true;
+    else return false;
+
+}
+
+
+bool CGame::surrounded(SCoord head, bool by_snake) {
+    vector<SCoord> delta = {SCoord(0,-1), SCoord(1,0), SCoord(0,1), SCoord(-1,0)};
 
     int sur_side = 0;
 
-    for (int i = 0; i <= 3, i++) {
-        if (head.x == 0 || head.x == width-1 || head.y == 0 || head.y == height-1 || snake.into(head + delta[i])) sur_side += 1;
+    if (not by_snake) {
+        for (int i = 0; i <= 3; i++) {
+            head += delta[i];
+            if (head.x == 0 || head.x == width - 1 || head.y == 0 || head.y == height - 1 || snake.into(head))
+                sur_side += 1;
+        }
+    }
+    else {
+        for (int i = 0; i <= 3; i++) {
+            if (snake.into(head + delta[i]))
+                sur_side += 1;
+        }
     }
 
     if (sur_side == 4) {
@@ -360,12 +409,13 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
 
 
     vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
-    vector<SCoord> delta = {SCoord(0,1), SCoord(1,0), SCoord(0,-1), SCoord(-1,0)};
+    vector<SCoord> delta = {SCoord(0,-1), SCoord(1,0), SCoord(0,1), SCoord(-1,0)};
 
     float min_delta_distance = 2;
 
     for (int i = 0; i <= 3; i++) {
-        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 && not surrounded(head+delta[i])){
+        if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 &&
+        not surrounded(head+delta[i], false) && not surrounded(head+delta[i]*2, true) && not traced(head + delta[i])){
             if (i == 0) {up = 1, right=0, down=0, left=0;}
             if (i == 1) {up = 0, right=1, down=0, left=0;}
             if (i == 2) {up = 0, right=0, down=1, left=0;}
