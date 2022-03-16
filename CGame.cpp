@@ -9,6 +9,8 @@
 #include <iostream>
 #include <cstring>
 #include <conio.h>
+#include <cstdio>
+#include <math.h>
 
 
 // форматная строка для форматирования результата игры
@@ -284,10 +286,51 @@ void CGame::print_input(vector<float> input) {
     scr.pos_str(13, height + 2, food_y.c_str());
     scr.pos_str(13, height + 3, hd_x.c_str());
     scr.pos_str(13, height + 4, hd_y.c_str());
-
-
 }
 
+float distance(int x1,int y1,int x2,int y2) {
+    float dx = x2 - x1;
+    float dy = y2 - y1;
+    float distance = sqrt(dx*dx + dy*dy);
+    return distance;
+}
+
+vector<float> CGame::correct_way(vector<float> info, SCoord food){
+    float up = 0;
+    float down = 0;
+    float right = 0;
+    float left = 0;
+    SCoord head = SCoord((int)info[14], (int)info[15]);
+    SCoord head_up = head + SCoord(0,1);
+    SCoord head_right = head + SCoord(1,0);
+    SCoord head_down = head + SCoord(-1,0);
+    SCoord head_left = head + SCoord(-1,0);
+    float now_distance = distance(head.x, head.y, food.x, food.y);
+    float head_up_distance = distance(head_up.x, head_up.y, food.x, food.y);
+    float head_right_distance = distance(head_right.x, head_right.y, food.x, food.y);
+    float head_down_distance = distance(head_down.x, head_down.y, food.x, food.y);
+    float head_left_distance = distance(head_left.x, head_left.y, food.x, food.y);
+    float delta_up_distance = now_distance - head_up_distance;
+    float delta_right_distance = now_distance - head_right_distance;
+    float delta_down_distance = now_distance - head_down_distance;
+    float delta_left_distance = now_distance - head_left_distance;
+
+    vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
+
+    float min_distance = 1000000000000.0;
+
+    for (int i = 1; i <= 4; i++) {
+        if (delta_distances[i] < min_distance && info[3+i] != 0){
+            if (i == 1) {up = 1, right=0, down=0, left=0;}
+            if (i == 2) {up = 0, right=1, down=0, left=0;}
+            if (i == 3) {up = 0, right=0, down=1, left=0;}
+            if (i == 4) {up = 0, right=0, down=0, left=1;}
+        }
+    }
+    vector<float> out = {up, right, down, left};
+    return out;
+
+}
 
 vector<float> CGame::info(SCoord food) {
     float apple_above_snake = 0;
@@ -384,6 +427,9 @@ void CGame::game_loop() {
 
         vector<float> input = info(food);
         print_input(input);
+
+        vector<float> correct_way = correct_way()
+
 
 
         SCoord hd = snake.head();       // координата головы змеи

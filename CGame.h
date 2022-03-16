@@ -47,6 +47,7 @@ public:
     void goodbye();             // вывод копирайта по окончании игры
     vector<float> info(SCoord food);
     void print_input(vector<float> stat);
+    vector<float> correct_way(vector<float> info, SCoord food);
 
 private:
     enum Command { CMD_NOCOMMAND = 0, CMD_EXIT, CMD_LEFT, CMD_RIGHT, CMD_UP, CMD_DOWN };
