@@ -10,7 +10,7 @@
 #include <time.h>
 #include <fstream>
 #include <utility>
-
+#include <vector>
 #include "CScreen.h"
 #include "CSnake.h"
 #include "SCoord.h"
@@ -45,6 +45,8 @@ public:
     void write_top10();         // запись в файл таблицы 10 лучших результатов
     void logo();                // вывод заставки игры
     void goodbye();             // вывод копирайта по окончании игры
+    vector<int> info(SCoord food);
+    void print_input(vector<int> stat);
 
 private:
     enum Command { CMD_NOCOMMAND = 0, CMD_EXIT, CMD_LEFT, CMD_RIGHT, CMD_UP, CMD_DOWN };

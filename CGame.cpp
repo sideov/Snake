@@ -5,10 +5,11 @@
  */
 
 #include "CGame.h"
-
+#include <vector>
 #include <iostream>
 #include <cstring>
 #include <conio.h>
+
 
 // форматная строка для форматирования результата игры
 const char *recordFormatStr = "%-15s  %9.4f  %4u  %7.2f  %s";
@@ -247,6 +248,80 @@ void CGame::goodbye() {
 
 const char FOOD = '$';      // символ для вывода еды
 
+
+void CGame::print_input(vector<int> input) {
+    string apple_above_snake = std::to_string(input[0]);
+    string apple_right_snake = std::to_string(input[1]);
+    string apple_below_snake = std::to_string(input[2]);
+    string apple_left_snake = std::to_string(input[3]);
+    string obstacle_above_snake = std::to_string(input[4]);
+    string obstacle_right_snake = std::to_string(input[5]);
+    string obstacle_below_snake = std::to_string(input[6]);
+    string obstacle_left_snake = std::to_string(input[7]);
+    string snake_dir_up =  std::to_string(input[8]);
+    string snake_dir_right =  std::to_string(input[9]);
+    string snake_dir_down =  std::to_string(input[10]);
+    string snake_dir_left =  std::to_string(input[11]);
+
+    scr.pos_str(1, height + 3, apple_above_snake.c_str());
+    scr.pos_str(2, height + 3, apple_right_snake.c_str());
+    scr.pos_str(3, height + 3, apple_below_snake.c_str());
+    scr.pos_str(4, height + 3, apple_left_snake.c_str());
+    scr.pos_str(5, height + 3, obstacle_above_snake.c_str());
+    scr.pos_str(6, height + 3, obstacle_right_snake.c_str());
+    scr.pos_str(7, height + 3, obstacle_below_snake.c_str());
+    scr.pos_str(8, height + 3, obstacle_left_snake.c_str());
+    scr.pos_str(9, height + 3, snake_dir_up.c_str());
+    scr.pos_str(10, height + 3, snake_dir_right.c_str());
+    scr.pos_str(11, height + 3, snake_dir_down.c_str());
+    scr.pos_str(12, height + 3, snake_dir_left.c_str());
+
+}
+
+
+vector<int> CGame::info(SCoord food) {
+    int apple_above_snake = 0;
+    int apple_right_snake = 0;
+    int apple_below_snake = 0;
+    int apple_left_snake = 0;
+    int obstacle_above_snake = 0;
+    int obstacle_right_snake = 0;
+    int obstacle_below_snake = 0;
+    int obstacle_left_snake = 0;
+    int snake_dir_up = 0;
+    int snake_dir_right = 0;
+    int snake_dir_down = 0;
+    int snake_dir_left = 0;
+
+    SCoord hd = snake.head();
+    SCoord hd_pl_x = hd + SCoord(1,0);
+    SCoord hd_mn_x = hd + SCoord(-1,0);
+    SCoord hd_pl_y = hd + SCoord(0,1);
+    SCoord hd_mn_y = hd + SCoord(0,-1);
+
+    if (hd.y == 1 || snake.into(hd_mn_y)) obstacle_above_snake = 1;
+    if (hd.x == 1 || snake.into(hd_mn_x)) obstacle_left_snake = 1;
+    if (hd.y == height-2 || snake.into(hd_pl_y)) obstacle_below_snake = 1;
+    if (hd.x == width-2 || snake.into(hd_pl_x)) obstacle_right_snake = 1;
+
+    if (hd_pl_x == food) apple_right_snake = 1;
+    if (hd_pl_y == food) apple_above_snake = 1;
+    if (hd_mn_x == food) apple_left_snake = 1;
+    if (hd_mn_y == food) apple_below_snake = 1;
+
+    if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(1,0)) snake_dir_right = 1;
+    if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(-1,0)) snake_dir_left = 1;
+    if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,1)) snake_dir_down = 1;
+    if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,-1)) snake_dir_up = 1;
+
+
+    vector<int> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
+                       obstacle_above_snake, obstacle_right_snake, obstacle_below_snake, obstacle_left_snake,
+                       snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left};
+
+    return out;
+}
+
 void CGame::game_loop() {
 
     duration_game = 0;
@@ -278,8 +353,9 @@ void CGame::game_loop() {
 
         // обработка команд
 
+
         switch (cmd) {
-        case CMD_LEFT:  // /////////////////////////////////////////////////////////////////////////
+        case CMD_LEFT:
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
@@ -297,12 +373,16 @@ void CGame::game_loop() {
             break;
         };
 
+        vector<int> input = info(food);
+        print_input(input);
+
+
 
 
 
         SCoord hd = snake.head();       // координата головы змеи
         hd += delta;                    // координата головы змеи после приращения (следующая позиция)
-        // если голова змеи столкнулась с границей поля или со телом змеи, то змея умирает
+        // если голова змеи столкнулась с границей поля или с телом змеи, то змея умирает
         if (hd.x == 0 || hd.x == width-1 || hd.y == 0 || hd.y == height-1 || snake.into(hd))
             stt = STATE_DIED;
 
