@@ -415,7 +415,7 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
 
     for (int i = 0; i <= 3; i++) {
         if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 &&
-        not surrounded(head+delta[i], false) && not surrounded(head+delta[i]*2, true) && not traced(head + delta[i])){
+        not surrounded(head+delta[i], false) && not traced(head + delta[i])){
             if (i == 0) {up = 1, right=0, down=0, left=0;}
             if (i == 1) {up = 0, right=1, down=0, left=0;}
             if (i == 2) {up = 0, right=0, down=1, left=0;}
@@ -532,9 +532,6 @@ void CGame::game_loop() {
         if (correct_w[1] == 1) delta = SCoord(1,0);
         if (correct_w[2] == 1) delta = SCoord(0,1);
         if (correct_w[3] == 1) delta = SCoord(-1,0);
-
-
-
 
 
         SCoord hd = snake.head();       // координата головы змеи
