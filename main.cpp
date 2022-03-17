@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <conio.h>
+#include "neuro.h"
 
 #include "CScreen.h"
 #include "CGame.h"
@@ -17,6 +18,8 @@ using namespace std;
 int main() {
 
     setlocale(LC_ALL, "Russian");
+    uint16_t neurons[4] = {16, 32, 32,4};
+    NeuralNet net(4, neurons);
 
     try {
         CScreen screen;
@@ -26,10 +29,11 @@ int main() {
         CGame game(screen, 80, 24, 120);
 
 
+
         //game.pak(18);
 
         do {
-            game.game_loop();
+            game.game_loop(net);
             //game.top10(true);
 
         } while (true);

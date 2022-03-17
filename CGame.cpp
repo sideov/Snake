@@ -11,6 +11,7 @@
 #include <conio.h>
 #include <cstdio>
 #include <math.h>
+#include <algorithm>
 
 
 // форматная строка для форматирования результата игры
@@ -261,10 +262,23 @@ void CGame::print_correct_way(vector<int> correct_way) {
     scr.pos_str(5, height + 5, right.c_str());
     scr.pos_str(6, height + 5, down.c_str());
     scr.pos_str(7, height + 5, left.c_str());
+}
+
+void CGame::print_neuro_predict(vector<double> predict) {
+    string up = std::to_string(predict[0]);
+    string right = std::to_string(predict[1]);
+    string down = std::to_string(predict[2]);
+    string left = std::to_string(predict[3]);
+
+    scr.pos_str(width + 5, height, up.c_str());
+    scr.pos_str(width + 5, height + 1, right.c_str());
+    scr.pos_str(width + 5, height + 2, down.c_str());
+    scr.pos_str(width + 5, height + 3, left.c_str());
 
 }
 
-void CGame::print_input(vector<float> input) {
+
+void CGame::print_input(vector<double> input) {
     string apple_above_snake = std::to_string(input[0]);
     string apple_right_snake = std::to_string(input[1]);
     string apple_below_snake = std::to_string(input[2]);
@@ -329,14 +343,14 @@ bool CGame::traced(SCoord head) {
         }
     }
     for (int i = 1; i <= height; i++) {
-        if (snake.into(head + delta[2]*i) || (head+delta[0]).y == height-1) {
+        if (snake.into(head + delta[2]*i) || (head+delta[2]).y == height-1) {
             down = true;
             break;
         }
 
     }
     for (int i = 1; i <= width; i++) {
-        if (snake.into(head + delta[3]*i) || (head+delta[0]).x == 0) {
+        if (snake.into(head + delta[3]*i) || (head+delta[3]).x == 0) {
             left = true;
             break;
         }
@@ -387,7 +401,7 @@ bool CGame::surrounded(SCoord head, bool only_snake,SCoord premove) {
 
 }
 
-vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act){
+vector<int> CGame::correct_way(vector<double> info, SCoord food, SCoord head_act){
     int up = 0;
     int down = 0;
     int right = 0;
@@ -397,15 +411,15 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
     SCoord head_right = head + SCoord(1,0);
     SCoord head_down = head + SCoord(0,-1);
     SCoord head_left = head + SCoord(-1,0);
-    float now_distance = distance(head.x, head.y, food.x, food.y);
-    float head_up_distance = distance(head_up.x, head_up.y, food.x, food.y);
-    float head_right_distance = distance(head_right.x, head_right.y, food.x, food.y);
-    float head_down_distance = distance(head_down.x, head_down.y, food.x, food.y);
-    float head_left_distance = distance(head_left.x, head_left.y, food.x, food.y);
-    float delta_up_distance = -head_up_distance + now_distance;
-    float delta_right_distance = head_right_distance-now_distance;
-    float delta_down_distance = -head_down_distance+now_distance;
-    float delta_left_distance = head_left_distance-now_distance;
+    double now_distance = distance(head.x, head.y, food.x, food.y);
+    double head_up_distance = distance(head_up.x, head_up.y, food.x, food.y);
+    double head_right_distance = distance(head_right.x, head_right.y, food.x, food.y);
+    double head_down_distance = distance(head_down.x, head_down.y, food.x, food.y);
+    double head_left_distance = distance(head_left.x, head_left.y, food.x, food.y);
+    double delta_up_distance = -head_up_distance + now_distance;
+    double delta_right_distance = head_right_distance-now_distance;
+    double delta_down_distance = -head_down_distance+now_distance;
+    double delta_left_distance = head_left_distance-now_distance;
 
     string delta_up_dist_str = std::to_string(delta_up_distance);
     string delta_right_dist_str = std::to_string(delta_right_distance);
@@ -418,7 +432,7 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
     scr.pos_str(width+3, 8, delta_left_dist_str.c_str());
 
 
-    vector<float> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
+    vector<double> delta_distances = {delta_up_distance, delta_right_distance, delta_down_distance, delta_left_distance};
     vector<SCoord> delta = {SCoord(0,-1), SCoord(1,0), SCoord(0,1), SCoord(-1,0)};
 
     float min_delta_distance = 2;
@@ -439,19 +453,19 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
 
 }
 
-vector<float> CGame::info(SCoord food) {
-    float apple_above_snake = 0;
-    float apple_right_snake = 0;
-    float apple_below_snake = 0;
-    float apple_left_snake = 0;
-    float obstacle_above_snake = 0;
-    float obstacle_right_snake = 0;
-    float obstacle_below_snake = 0;
-    float obstacle_left_snake = 0;
-    float snake_dir_up = 0;
-    float snake_dir_right = 0;
-    float snake_dir_down = 0;
-    float snake_dir_left = 0;
+vector<double> CGame::info(SCoord food) {
+    double apple_above_snake = 0;
+    double apple_right_snake = 0;
+    double apple_below_snake = 0;
+    double apple_left_snake = 0;
+    double obstacle_above_snake = 0;
+    double obstacle_right_snake = 0;
+    double obstacle_below_snake = 0;
+    double obstacle_left_snake = 0;
+    double snake_dir_up = 0;
+    double snake_dir_right = 0;
+    double snake_dir_down = 0;
+    double snake_dir_left = 0;
 
     SCoord hd = snake.head();
     SCoord hd_pl_x = hd + SCoord(1,0);
@@ -474,14 +488,14 @@ vector<float> CGame::info(SCoord food) {
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,1)) snake_dir_down = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,-1)) snake_dir_up = 1;
 
-    vector<float> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
+    vector<double> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
                        obstacle_above_snake, obstacle_right_snake, obstacle_below_snake, obstacle_left_snake,
                        snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left,
                          (float)food.x/(float)(width-2), (float)food.y/(float)(height-2), (float)hd.x/(float)(width-2), (float)hd.y/(float)(height-2)};
     return out;
 }
 
-void CGame::game_loop() {
+void CGame::game_loop(NeuralNet net) {
 
     duration_game = 0;
     rating = rating_i = 0.0;
@@ -532,16 +546,52 @@ void CGame::game_loop() {
             break;
         };
 
-        vector<float> input = info(food);
+        vector<double> input = info(food);
         print_input(input);
+        double* input_mass = &input[0];
+
 
         vector<int> correct_w = correct_way(input, food, snake.head());
         print_correct_way(correct_w);
 
-        if (correct_w[0] == 1) delta = SCoord(0,-1);
-        if (correct_w[1] == 1) delta = SCoord(1,0);
-        if (correct_w[2] == 1) delta = SCoord(0,1);
-        if (correct_w[3] == 1) delta = SCoord(-1,0);
+        double correct_w_mass_neuro_predict[4] = { 0 };
+        int* correct_w_our_mass = &correct_w[0];
+        double correct_w_our_mass_double[correct_w.size()];
+
+        for (int i = 0; i < correct_w.size(); i++) {
+            correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
+        }
+
+
+        net.Forward(16, input_mass);
+        net.getResult(4, correct_w_mass_neuro_predict);
+        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.1, 10);
+
+        double predict_up = correct_w_mass_neuro_predict[0];
+        double predict_right = correct_w_mass_neuro_predict[1];
+        double predict_down = correct_w_mass_neuro_predict[2];
+        double predict_left = correct_w_mass_neuro_predict[3];
+
+        vector<double> correct_w_vector_neuro_predict(begin(correct_w_mass_neuro_predict), end(correct_w_mass_neuro_predict));
+
+        print_neuro_predict(correct_w_vector_neuro_predict);
+
+        double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
+        bool human = false;
+
+        if (not human) {
+            if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
+            if (correct_w_vector_neuro_predict[1] == max_predicted_value) delta = SCoord(1, 0);
+            if (correct_w_vector_neuro_predict[2] == max_predicted_value) delta = SCoord(0, 1);
+            if (correct_w_vector_neuro_predict[3] == max_predicted_value) delta = SCoord(-1, 0);
+        }
+        else {
+            if (correct_w[0] == max_predicted_value) delta = SCoord(0, -1);
+            if (correct_w[1] == max_predicted_value) delta = SCoord(1, 0);
+            if (correct_w[2] == max_predicted_value) delta = SCoord(0, 1);
+            if (correct_w[3] == max_predicted_value) delta = SCoord(-1, 0);
+
+        }
 
 
         SCoord hd = snake.head();       // координата головы змеи
@@ -572,7 +622,7 @@ void CGame::game_loop() {
                 print_stat();           // вывод текущей статистики игры
             }
 
-            Sleep(latency=0.1);             // задержка перед следующим изменением позиции
+            Sleep(latency=0.01);             // задержка перед следующим изменением позиции
         }
 
     } while (stt == STATE_OK);          // играем, пока змея жива

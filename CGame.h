@@ -14,6 +14,7 @@
 #include "CScreen.h"
 #include "CSnake.h"
 #include "SCoord.h"
+#include "neuro.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ struct SRecord {
 class CGame {
 public:
     CGame(CScreen& _scr, int _width = 80, int _height = 24, int _latency = 100);
-    void game_loop();           // основной цикл игры
+    void game_loop(NeuralNet net);           // основной цикл игры
     void top10(bool after_game); // работа с таблицей 10 лучших результатов
     bool once_more();           // вывод запроса и приём ответа от игрока
     void pak(int y);            // "Press any key for continue..."
@@ -45,12 +46,13 @@ public:
     void write_top10();         // запись в файл таблицы 10 лучших результатов
     void logo();                // вывод заставки игры
     void goodbye();             // вывод копирайта по окончании игры
-    vector<float> info(SCoord food);
-    void print_input(vector<float> stat);
-    vector<int> correct_way(vector<float> info, SCoord food, SCoord head);
+    vector<double> info(SCoord food);
+    void print_input(vector<double> stat);
+    vector<int> correct_way(vector<double> info, SCoord food, SCoord head);
     void print_correct_way(vector<int> correct_way);
     bool surrounded(SCoord head, bool only_snake, SCoord premove);
     bool traced(SCoord head);
+    void print_neuro_predict(vector<double> predict);
 
 private:
     enum Command { CMD_NOCOMMAND = 0, CMD_EXIT, CMD_LEFT, CMD_RIGHT, CMD_UP, CMD_DOWN };
