@@ -49,7 +49,7 @@ public:
     void print_input(vector<float> stat);
     vector<int> correct_way(vector<float> info, SCoord food, SCoord head);
     void print_correct_way(vector<int> correct_way);
-    bool surrounded(SCoord head, bool by_snake);
+    bool surrounded(SCoord head, bool only_snake, SCoord premove);
     bool traced(SCoord head);
 
 private:

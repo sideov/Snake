@@ -317,26 +317,26 @@ bool CGame::traced(SCoord head) {
     bool down = false;
 
     for (int i = 1; i <= height; i++) {
-        if (snake.into(head + delta[0]*i)) {
+        if (snake.into(head + delta[0]*i) || (head+delta[0]).y == 0) {
             up = true;
             break;
         }
     }
     for (int i = 1; i <= width; i++) {
-        if (snake.into(head + delta[1]*i)) {
+        if (snake.into(head + delta[1]*i) || (head+delta[1]).x == width-1) {
             right = true;
             break;
         }
     }
     for (int i = 1; i <= height; i++) {
-        if (snake.into(head + delta[2]*i)) {
+        if (snake.into(head + delta[2]*i) || (head+delta[0]).y == height-1) {
             down = true;
             break;
         }
 
     }
     for (int i = 1; i <= width; i++) {
-        if (snake.into(head + delta[3]*i)) {
+        if (snake.into(head + delta[3]*i) || (head+delta[0]).x == 0) {
             left = true;
             break;
         }
@@ -348,15 +348,18 @@ bool CGame::traced(SCoord head) {
 }
 
 
-bool CGame::surrounded(SCoord head, bool by_snake) {
+bool CGame::surrounded(SCoord head, bool only_snake,SCoord premove) {
     vector<SCoord> delta = {SCoord(0,-1), SCoord(1,0), SCoord(0,1), SCoord(-1,0)};
 
     int sur_side = 0;
 
-    if (not by_snake) {
+    if (not only_snake) {
         for (int i = 0; i <= 3; i++) {
-            head += delta[i];
-            if (head.x == 0 || head.x == width - 1 || head.y == 0 || head.y == height - 1 || snake.into(head))
+            SCoord headd = head + delta[i];
+            CSnake future_snake = snake;
+            future_snake.worm.push_back(head);
+
+            if (headd.x == 0 || headd.x == width - 1 || headd.y == 0 || headd.y == height - 1 || future_snake.into(headd))
                 sur_side += 1;
         }
     }
@@ -367,7 +370,14 @@ bool CGame::surrounded(SCoord head, bool by_snake) {
         }
     }
 
+    string sur_sidee = std::to_string(sur_side);
+
+    scr.pos_str(width+3, 15, sur_sidee.c_str());
+
+
     if (sur_side == 4) {
+        scr.pos_str(width+3, 17, "okk");
+
         return true;
     }
     else {
@@ -415,7 +425,7 @@ vector<int> CGame::correct_way(vector<float> info, SCoord food, SCoord head_act)
 
     for (int i = 0; i <= 3; i++) {
         if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 &&
-        not surrounded(head+delta[i], false) && not traced(head + delta[i])){
+        not surrounded(head+delta[i], false, delta[i]) && not traced(head + delta[i])){
             if (i == 0) {up = 1, right=0, down=0, left=0;}
             if (i == 1) {up = 0, right=1, down=0, left=0;}
             if (i == 2) {up = 0, right=0, down=1, left=0;}
