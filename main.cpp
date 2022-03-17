@@ -34,8 +34,10 @@ int main() {
 
         do {
             game.game_loop(net);
-            //game.top10(true);
+            //vector<vector<double>> first_layer = net.weights[0];
+            //for (int row = 0, row < first_layer[0].size())
 
+            //game.top10(true);
         } while (true);
 
         game.goodbye();

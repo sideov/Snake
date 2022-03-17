@@ -495,6 +495,13 @@ vector<double> CGame::info(SCoord food) {
     return out;
 }
 
+/*
+SCoord random_way() {
+    pass
+
+}
+ */
+
 void CGame::game_loop(NeuralNet net) {
 
     duration_game = 0;
@@ -529,6 +536,7 @@ void CGame::game_loop(NeuralNet net) {
 
         switch (cmd) {
         case CMD_LEFT:
+            stt = STATE_DIED;
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
@@ -548,11 +556,20 @@ void CGame::game_loop(NeuralNet net) {
 
         vector<double> input = info(food);
         print_input(input);
+
         double* input_mass = &input[0];
 
 
         vector<int> correct_w = correct_way(input, food, snake.head());
         print_correct_way(correct_w);
+        /*
+        int rand_number = rand();
+        if (rand_number < 30000) {
+            correct_w = random_way();
+        }
+         */
+
+
 
         double correct_w_mass_neuro_predict[4] = { 0 };
         int* correct_w_our_mass = &correct_w[0];
@@ -565,7 +582,7 @@ void CGame::game_loop(NeuralNet net) {
 
         net.Forward(16, input_mass);
         net.getResult(4, correct_w_mass_neuro_predict);
-        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.1, 10);
+        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 100);
 
         double predict_up = correct_w_mass_neuro_predict[0];
         double predict_right = correct_w_mass_neuro_predict[1];
@@ -577,7 +594,7 @@ void CGame::game_loop(NeuralNet net) {
         print_neuro_predict(correct_w_vector_neuro_predict);
 
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
-        bool human = false;
+        bool human = true;
 
         if (not human) {
             if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
@@ -586,10 +603,10 @@ void CGame::game_loop(NeuralNet net) {
             if (correct_w_vector_neuro_predict[3] == max_predicted_value) delta = SCoord(-1, 0);
         }
         else {
-            if (correct_w[0] == max_predicted_value) delta = SCoord(0, -1);
-            if (correct_w[1] == max_predicted_value) delta = SCoord(1, 0);
-            if (correct_w[2] == max_predicted_value) delta = SCoord(0, 1);
-            if (correct_w[3] == max_predicted_value) delta = SCoord(-1, 0);
+            if (correct_w[0] == 1) delta = SCoord(0, -1);
+            if (correct_w[1] == 1) delta = SCoord(1, 0);
+            if (correct_w[2] == 1) delta = SCoord(0, 1);
+            if (correct_w[3] == 1) delta = SCoord(-1, 0);
 
         }
 
@@ -628,7 +645,4 @@ void CGame::game_loop(NeuralNet net) {
     } while (stt == STATE_OK);          // играем, пока змея жива
 
     //scr.pos_str(width / 2 - 8, 10, " G a m e    o v e r ");
-    clearkeys();
-    _getch();
-    clearkeys();
 }

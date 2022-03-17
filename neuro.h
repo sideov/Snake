@@ -14,9 +14,9 @@ public:
     void Forward(uint16_t size, double *data);
     void getResult(uint16_t size, double* data);
     void learnBackpropagation(double* data, double* ans, double acs, double k);
-private:
     vector<vector<vector<double>>> neurons;
     vector<vector<vector<double>>> weights;
+private:
     uint8_t numLayers;
     vector<int> neuronsInLayers;
     double Func(double in);
