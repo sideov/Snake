@@ -20,6 +20,7 @@ int main() {
     setlocale(LC_ALL, "Russian");
     uint16_t neurons[4] = {16, 32, 32,4};
     NeuralNet net(4, neurons);
+    ofstream F("result.txt");
 
     try {
         CScreen screen;
@@ -34,8 +35,7 @@ int main() {
 
         do {
             game.game_loop(net);
-            //vector<vector<double>> first_layer = net.weights[0];
-            //for (int row = 0, row < first_layer[0].size())
+
 
             //game.top10(true);
         } while (true);
