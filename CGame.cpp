@@ -40,6 +40,7 @@ ostream& operator << (ostream& os, const SRecord& rec) {
     return os;
 }
 
+
 istream& operator >> (istream& is, SRecord& rec) {
     is
         >> rec.rating
@@ -502,7 +503,7 @@ SCoord random_way() {
 
 }
  */
-
+bool human = true;
 void CGame::game_loop(NeuralNet net) {
 
     duration_game = 0;
@@ -541,9 +542,11 @@ void CGame::game_loop(NeuralNet net) {
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
+            human = false;
             delta = SCoord(1, 0);
             break;
         case CMD_UP:
+            human = true;
             delta = SCoord(0, -1);
             break;
         case CMD_DOWN:
@@ -571,7 +574,6 @@ void CGame::game_loop(NeuralNet net) {
          */
 
 
-
         double correct_w_mass_neuro_predict[4] = { 0 };
         int* correct_w_our_mass = &correct_w[0];
         double correct_w_our_mass_double[correct_w.size()];
@@ -583,7 +585,7 @@ void CGame::game_loop(NeuralNet net) {
 
         net.Forward(16, input_mass);
         net.getResult(4, correct_w_mass_neuro_predict);
-        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 1);
+        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.50, 1000);
 
         double predict_up = correct_w_mass_neuro_predict[0];
         double predict_right = correct_w_mass_neuro_predict[1];
@@ -595,7 +597,7 @@ void CGame::game_loop(NeuralNet net) {
         print_neuro_predict(correct_w_vector_neuro_predict);
 
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
-        bool human = true;
+
 
         if (not human) {
             if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
@@ -608,17 +610,6 @@ void CGame::game_loop(NeuralNet net) {
             if (correct_w[1] == 1) delta = SCoord(1, 0);
             if (correct_w[2] == 1) delta = SCoord(0, 1);
             if (correct_w[3] == 1) delta = SCoord(-1, 0);
-        }
-        ofstream F("result.txt");
-        vector<vector<vector<double>>> results  = net.weights;
-        for (int layer = 0; layer < results.size(); layer++) {
-            for (int column = 0; column < results[layer].size(); column++) {
-                for (int row = 0; row < results[layer][column].size(); row ++) {
-                    F << results[row][column][layer] << ' ';
-                }
-                F << "\n";
-            }
-            F << "\n\n";
         }
 
 
