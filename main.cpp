@@ -20,8 +20,6 @@ using namespace std;
 int main() {
 
     setlocale(LC_ALL, "Russian");
-    uint16_t neurons[5] = {20, 32, 32,16,4};
-    NeuralNet net(5, neurons);
 
     /*
     string last_weights = get_last_lane("results.txt");
@@ -46,14 +44,18 @@ int main() {
         screen.cursor_show(false);
         screen.text_attr((WORD)0x0a);
         screen.cls();
-        CGame game(screen, 80, 24, 120);
-
+        CGame game(screen, 15, 15, 120);
+        uint16_t neurons[5] = {20, 36, 36, 18, 4};
+        NeuralNet net(5, neurons);
 
 
         //game.pak(18);
 
         do {
-            game.game_loop(net);
+            NeuralNet network = net;
+
+            NeuralNet net = game.game_loop(network);
+
             //game.top10(true);
         } while (true);
 

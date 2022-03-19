@@ -506,6 +506,9 @@ vector<double> CGame::info(SCoord food) {
                        snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left,
                          (float)food.x/(float)(width-2), (float)food.y/(float)(height-2), (float)hd.x/(float)(width-2), (float)hd.y/(float)(height-2),
                         apple_above_snake_abs, apple_right_snake_abs, apple_below_snake_abs, apple_left_snake_abs};
+
+    vector<double> out2 = {(double)food.x/(double)(width-2), (double)food.y/(double)(height-2), (double)hd.x/(double)(width-2), (double)hd.y/(double)(height-2)};
+
     return out;
 }
 
@@ -533,9 +536,10 @@ SCoord random_way() {
 
 }
  */
-bool human = false;
+
+bool human = true;
 bool learn = true;
-void CGame::game_loop(NeuralNet network) {
+NeuralNet CGame::game_loop(NeuralNet network) {
 
     duration_game = 0;
     rating = rating_i = 0.0;
@@ -559,6 +563,7 @@ void CGame::game_loop(NeuralNet network) {
     clock_t time1, time2, duration;
     time1 = clock();
 
+
     do {
 
         if (_kbhit())                   // если в буфере клавиатуры есть информация,
@@ -570,20 +575,16 @@ void CGame::game_loop(NeuralNet network) {
         switch (cmd) {
         case CMD_LEFT:
             stt = STATE_DIED;
-            delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
             human = false;
-            delta = SCoord(1, 0);
             break;
         case CMD_UP:
             human = true;
-            delta = SCoord(0, -1);
             break;
         case CMD_DOWN:
-            if (learn) learn = false;
-            else learn = true;
-            delta = SCoord(0, 1);
+            learn = false;
+
             break;
         case CMD_EXIT:
             stt = STATE_EXIT;
@@ -612,10 +613,10 @@ void CGame::game_loop(NeuralNet network) {
         double correct_w_our_mass_double[correct_w.size()];
 
         for (int i = 0; i < correct_w.size(); i++) {
-            correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
+            correct_w_our_mass_double[i] = (double)correct_w_our_mass[i];
         }
 
-        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 1000);
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 10);
 
         network.Forward(20, input_mass);
         network.getResult(4, correct_w_mass_neuro_predict);
@@ -635,10 +636,10 @@ void CGame::game_loop(NeuralNet network) {
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
 
         if (not human) {
-            if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
-            if (correct_w_vector_neuro_predict[1] == max_predicted_value) delta = SCoord(1, 0);
-            if (correct_w_vector_neuro_predict[2] == max_predicted_value) delta = SCoord(0, 1);
-            if (correct_w_vector_neuro_predict[3] == max_predicted_value) delta = SCoord(-1, 0);
+            if (predict_up == max_predicted_value) delta = SCoord(0, -1);
+            if (predict_right == max_predicted_value) delta = SCoord(1, 0);
+            if (predict_down == max_predicted_value) delta = SCoord(0, 1);
+            if (predict_left == max_predicted_value) delta = SCoord(-1, 0);
         }
         else {
             if (correct_w[0] == 1) delta = SCoord(0, -1);
@@ -681,7 +682,6 @@ void CGame::game_loop(NeuralNet network) {
 
     } while (stt == STATE_OK);          // играем, пока змея жива
 
-    game_loop(network);
     ofstream F;
     F.open("results.txt", std::ios::app);
     vector<vector<vector<double>>> results  = network.weights;
@@ -695,4 +695,5 @@ void CGame::game_loop(NeuralNet network) {
     F << "\n";
     F.close();
 
+    return network;
 }
