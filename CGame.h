@@ -38,7 +38,7 @@ struct SRecord {
 class CGame {
 public:
     CGame(CScreen& _scr, int _width = 80, int _height = 24, int _latency = 100);
-    void game_loop(NeuralNet net);           // основной цикл игры
+    void game_loop(NeuralNet network);           // основной цикл игры
     void top10(bool after_game); // работа с таблицей 10 лучших результатов
     bool once_more();           // вывод запроса и приём ответа от игрока
     void pak(int y);            // "Press any key for continue..."
@@ -53,6 +53,8 @@ public:
     bool surrounded(SCoord head, bool only_snake, SCoord premove);
     bool traced(SCoord head);
     void print_neuro_predict(vector<double> predict);
+    void print_learn_status(bool human, bool learn);
+
 
 private:
     enum Command { CMD_NOCOMMAND = 0, CMD_EXIT, CMD_LEFT, CMD_RIGHT, CMD_UP, CMD_DOWN };

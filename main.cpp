@@ -20,8 +20,8 @@ using namespace std;
 int main() {
 
     setlocale(LC_ALL, "Russian");
-    uint16_t neurons[4] = {16, 32, 32,4};
-    NeuralNet net(4, neurons);
+    uint16_t neurons[5] = {20, 32, 32,16,4};
+    NeuralNet net(5, neurons);
 
     /*
     string last_weights = get_last_lane("results.txt");
@@ -54,22 +54,6 @@ int main() {
 
         do {
             game.game_loop(net);
-
-            ofstream F;
-            F.open("results.txt", std::ios::app);
-            vector<vector<vector<double>>> results  = net.weights;
-            for (int layer = 0; layer < results.size(); layer++) {
-                for (int column = 0; column < results[layer].size(); column++) {
-                    for (int row = 0; row < results[layer][column].size(); row ++) {
-                        F << results[row][column][layer] << " ";
-                    }
-                }
-            }
-            F << "\n";
-            F.close();
-
-
-
             //game.top10(true);
         } while (true);
 

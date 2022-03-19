@@ -468,6 +468,10 @@ vector<double> CGame::info(SCoord food) {
     double snake_dir_right = 0;
     double snake_dir_down = 0;
     double snake_dir_left = 0;
+    double apple_right_snake_abs = 0;
+    double apple_above_snake_abs = 0;
+    double apple_left_snake_abs = 0;
+    double apple_below_snake_abs = 0;
 
     SCoord hd = snake.head();
     SCoord hd_pl_x = hd + SCoord(1,0);
@@ -485,6 +489,13 @@ vector<double> CGame::info(SCoord food) {
     if (hd.x - food.x > 0) apple_left_snake = 1;
     if (hd.y - food.y < 0) apple_below_snake = 1;
 
+    if (hd_pl_x == food) apple_right_snake_abs = 1;
+    if (hd_mn_y == food) apple_above_snake_abs = 1;
+    if (hd_mn_x == food) apple_left_snake_abs = 1;
+    if (hd_pl_y == food) apple_below_snake_abs = 1;
+
+
+
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(1,0)) snake_dir_right = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(-1,0)) snake_dir_left = 1;
     if (snake.head() - snake.worm[snake.worm.size()-2] == SCoord(0,1)) snake_dir_down = 1;
@@ -493,8 +504,27 @@ vector<double> CGame::info(SCoord food) {
     vector<double> out = {apple_above_snake, apple_right_snake, apple_below_snake, apple_left_snake,
                        obstacle_above_snake, obstacle_right_snake, obstacle_below_snake, obstacle_left_snake,
                        snake_dir_up, snake_dir_right, snake_dir_down, snake_dir_left,
-                         (float)food.x/(float)(width-2), (float)food.y/(float)(height-2), (float)hd.x/(float)(width-2), (float)hd.y/(float)(height-2)};
+                         (float)food.x/(float)(width-2), (float)food.y/(float)(height-2), (float)hd.x/(float)(width-2), (float)hd.y/(float)(height-2),
+                        apple_above_snake_abs, apple_right_snake_abs, apple_below_snake_abs, apple_left_snake_abs};
     return out;
+}
+
+
+void CGame::print_learn_status(bool human, bool learn) {
+    string hum;
+    string ler;
+
+    if (human) hum = "true";
+    else hum = "false";
+
+    if (learn) ler = "true";
+    else ler = "false";
+
+
+    scr.pos_str(width + 5, 2, ("learn " + ler).c_str());
+    scr.pos_str(width + 5, 3, ("human " + hum).c_str());
+
+
 }
 
 /*
@@ -503,8 +533,9 @@ SCoord random_way() {
 
 }
  */
-bool human = true;
-void CGame::game_loop(NeuralNet net) {
+bool human = false;
+bool learn = true;
+void CGame::game_loop(NeuralNet network) {
 
     duration_game = 0;
     rating = rating_i = 0.0;
@@ -550,6 +581,8 @@ void CGame::game_loop(NeuralNet net) {
             delta = SCoord(0, -1);
             break;
         case CMD_DOWN:
+            if (learn) learn = false;
+            else learn = true;
             delta = SCoord(0, 1);
             break;
         case CMD_EXIT:
@@ -582,10 +615,11 @@ void CGame::game_loop(NeuralNet net) {
             correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
         }
 
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 1000);
 
-        net.Forward(16, input_mass);
-        net.getResult(4, correct_w_mass_neuro_predict);
-        net.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.50, 1000);
+        network.Forward(20, input_mass);
+        network.getResult(4, correct_w_mass_neuro_predict);
+
 
         double predict_up = correct_w_mass_neuro_predict[0];
         double predict_right = correct_w_mass_neuro_predict[1];
@@ -595,9 +629,10 @@ void CGame::game_loop(NeuralNet net) {
         vector<double> correct_w_vector_neuro_predict(begin(correct_w_mass_neuro_predict), end(correct_w_mass_neuro_predict));
 
         print_neuro_predict(correct_w_vector_neuro_predict);
+        print_learn_status(human, learn);
+
 
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
-
 
         if (not human) {
             if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
@@ -641,10 +676,23 @@ void CGame::game_loop(NeuralNet net) {
                 print_stat();           // вывод текущей статистики игры
             }
 
-            Sleep(latency=0.01);             // задержка перед следующим изменением позиции
+            Sleep(latency=0.1);             // задержка перед следующим изменением позиции
         }
 
     } while (stt == STATE_OK);          // играем, пока змея жива
 
-    //scr.pos_str(width / 2 - 8, 10, " G a m e    o v e r ");
+    game_loop(network);
+    ofstream F;
+    F.open("results.txt", std::ios::app);
+    vector<vector<vector<double>>> results  = network.weights;
+    for (int layer = 0; layer < results.size(); layer++) {
+        for (int column = 0; column < results[layer].size(); column++) {
+            for (int row = 0; row < results[layer][column].size(); row ++) {
+                F << results[row][column][layer] << " ";
+            }
+        }
+    }
+    F << "\n";
+    F.close();
+
 }
