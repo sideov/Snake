@@ -44,7 +44,7 @@ int main() {
         screen.cursor_show(false);
         screen.text_attr((WORD)0x0a);
         screen.cls();
-        CGame game(screen, 15, 15, 120);
+        CGame game(screen, 80, 15, 120);
         uint16_t neurons[5] = {20, 36, 36, 18, 4};
         NeuralNet net(5, neurons);
 

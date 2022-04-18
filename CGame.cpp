@@ -616,7 +616,7 @@ NeuralNet CGame::game_loop(NeuralNet network) {
             correct_w_our_mass_double[i] = (double)correct_w_our_mass[i];
         }
 
-        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 10);
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.1, 4);
 
         network.Forward(20, input_mass);
         network.getResult(4, correct_w_mass_neuro_predict);
@@ -635,6 +635,7 @@ NeuralNet CGame::game_loop(NeuralNet network) {
 
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
 
+        human = false;
         if (not human) {
             if (predict_up == max_predicted_value) delta = SCoord(0, -1);
             if (predict_right == max_predicted_value) delta = SCoord(1, 0);
