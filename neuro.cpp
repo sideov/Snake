@@ -40,8 +40,8 @@ void NeuralNet::getResult(uint16_t size, double* data) {
 }
 
 void NeuralNet::learnBackpropagation(double* data, double* ans, double acs, double k) {  //k - количество эпох обучения acs- скорость обучения
+    double* errors = new double[neuronsInLayers[numLayers - 1]];
     for (uint32_t e = 0; e < k; e++) {
-        double* errors = new double[neuronsInLayers[numLayers - 1]];
         Forward(neuronsInLayers[0], data);
         getResult(neuronsInLayers[numLayers - 1], errors);
         for (uint16_t n = 0; n < neuronsInLayers[numLayers - 1]; n++) {
@@ -56,6 +56,7 @@ void NeuralNet::learnBackpropagation(double* data, double* ans, double acs, doub
             }
         }
     }
+    delete[] errors;
 }
 
 double NeuralNet::Func(double in) {
