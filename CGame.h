@@ -23,7 +23,7 @@ const int NAMELENGTH = 16;      // размер буфера для имени �
 // Структура для хранения результата игры
 
 struct SRecord {
-    char name[NAMELENGTH];      // имя игрока
+    char name[NAMELENGTH]{'\0'};      // имя игрока
     double rating;              // рейтинг
     int length;                 // длина змеи
     double game_time;           // время игры
@@ -38,7 +38,7 @@ struct SRecord {
 class CGame {
 public:
     CGame(CScreen& _scr, int _width = 80, int _height = 24, int _latency = 100);
-    void game_loop(NeuralNet network);           // основной цикл игры
+    void game_loop(NeuralNet& network);           // основной цикл игры
     void top10(bool after_game); // работа с таблицей 10 лучших результатов
     bool once_more();           // вывод запроса и приём ответа от игрока
     void pak(int y);            // "Press any key for continue..."

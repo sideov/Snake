@@ -13,6 +13,7 @@
 #include <math.h>
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 
 // форматная строка для форматирования результата игры
@@ -55,8 +56,8 @@ istream& operator >> (istream& is, SRecord& rec) {
 // Функция сравнения результатов по рейтингу.
 // Необходима для работы qsort() для сортировки по убыванию.
 int rec_compare(const void *_op1, const void *_op2) {
-    const SRecord *op1 = reinterpret_cast<const SRecord *>(_op1);
-    const SRecord *op2 = reinterpret_cast<const SRecord *>(_op2);
+    const auto *op1 = reinterpret_cast<const SRecord *>(_op1);
+    const auto *op2 = reinterpret_cast<const SRecord *>(_op2);
     return static_cast<int>(op2->rating - op1->rating);
 }
 
@@ -369,7 +370,7 @@ bool CGame::surrounded(SCoord head, bool only_snake,SCoord premove) {
 
     int sur_side = 0;
 
-    if (not only_snake) {
+    if (! only_snake) {
         for (int i = 0; i <= 3; i++) {
             SCoord headd = head + delta[i];
             CSnake future_snake = snake;
@@ -441,7 +442,7 @@ vector<int> CGame::correct_way(vector<double> info, SCoord food, SCoord head_act
 
     for (int i = 0; i <= 3; i++) {
         if (delta_distances[i] < min_delta_distance && (int)info[4+i] == 0 &&
-        not surrounded(head+delta[i], false, delta[i]) && not traced(head + delta[i])){
+        ! surrounded(head+delta[i], false, delta[i]) && ! traced(head + delta[i])){
             if (i == 0) {up = 1, right=0, down=0, left=0;}
             if (i == 1) {up = 0, right=1, down=0, left=0;}
             if (i == 2) {up = 0, right=0, down=1, left=0;}
@@ -535,7 +536,8 @@ SCoord random_way() {
  */
 bool human = false;
 bool learn = true;
-void CGame::game_loop(NeuralNet network) {
+
+void CGame::game_loop(NeuralNet& network) {
 
     duration_game = 0;
     rating = rating_i = 0.0;
@@ -609,13 +611,13 @@ void CGame::game_loop(NeuralNet network) {
 
         double correct_w_mass_neuro_predict[4] = { 0 };
         int* correct_w_our_mass = &correct_w[0];
-        double correct_w_our_mass_double[correct_w.size()];
+        std::vector<double> correct_w_our_mass_double=std::vector<double>(correct_w.size());
 
         for (int i = 0; i < correct_w.size(); i++) {
             correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
         }
 
-        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double, 0.5, 1000);
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.5, 2);
 
         network.Forward(20, input_mass);
         network.getResult(4, correct_w_mass_neuro_predict);
@@ -634,7 +636,7 @@ void CGame::game_loop(NeuralNet network) {
 
         double max_predicted_value = *max_element(begin(correct_w_vector_neuro_predict), end(correct_w_vector_neuro_predict));
 
-        if (not human) {
+        if (! human) {
             if (correct_w_vector_neuro_predict[0] == max_predicted_value) delta = SCoord(0, -1);
             if (correct_w_vector_neuro_predict[1] == max_predicted_value) delta = SCoord(1, 0);
             if (correct_w_vector_neuro_predict[2] == max_predicted_value) delta = SCoord(0, 1);
@@ -681,18 +683,5 @@ void CGame::game_loop(NeuralNet network) {
 
     } while (stt == STATE_OK);          // играем, пока змея жива
 
-    game_loop(network);
-    ofstream F;
-    F.open("results.txt", std::ios::app);
-    vector<vector<vector<double>>> results  = network.weights;
-    for (int layer = 0; layer < results.size(); layer++) {
-        for (int column = 0; column < results[layer].size(); column++) {
-            for (int row = 0; row < results[layer][column].size(); row ++) {
-                F << results[row][column][layer] << " ";
-            }
-        }
-    }
-    F << "\n";
-    F.close();
 
 }
