@@ -572,6 +572,7 @@ void CGame::game_loop(NeuralNet& network) {
         switch (cmd) {
         case CMD_LEFT:
             stt = STATE_DIED;
+            learn=true;
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
@@ -583,8 +584,7 @@ void CGame::game_loop(NeuralNet& network) {
             delta = SCoord(0, -1);
             break;
         case CMD_DOWN:
-            if (learn) learn = false;
-            else learn = true;
+            learn = false;
             delta = SCoord(0, 1);
             break;
         case CMD_EXIT:
@@ -617,10 +617,12 @@ void CGame::game_loop(NeuralNet& network) {
             correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
         }
 
-        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.5, 2);
+        //if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.2, 1);
 
         network.Forward(20, input_mass);
         network.getResult(4, correct_w_mass_neuro_predict);
+
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.4, 1000);
 
 
         double predict_up = correct_w_mass_neuro_predict[0];
@@ -678,7 +680,7 @@ void CGame::game_loop(NeuralNet& network) {
                 print_stat();           // вывод текущей статистики игры
             }
 
-            Sleep(latency=0.1);             // задержка перед следующим изменением позиции
+            Sleep(latency=0.001);             // задержка перед следующим изменением позиции
         }
 
     } while (stt == STATE_OK);          // играем, пока змея жива
