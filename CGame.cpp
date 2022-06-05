@@ -572,7 +572,6 @@ void CGame::game_loop(NeuralNet& network) {
         switch (cmd) {
         case CMD_LEFT:
             stt = STATE_DIED;
-            learn=true;
             delta = SCoord(-1, 0);
             break;
         case CMD_RIGHT:
@@ -613,16 +612,18 @@ void CGame::game_loop(NeuralNet& network) {
         int* correct_w_our_mass = &correct_w[0];
         std::vector<double> correct_w_our_mass_double=std::vector<double>(correct_w.size());
 
+
+
         for (int i = 0; i < correct_w.size(); i++) {
             correct_w_our_mass_double[i] = (int)correct_w_our_mass[i];
         }
 
-        //if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.2, 1);
+        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.4, 5);
 
         network.Forward(20, input_mass);
         network.getResult(4, correct_w_mass_neuro_predict);
 
-        if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.4, 1000);
+        //if (learn) network.learnBackpropagation(input_mass, correct_w_our_mass_double.data(), 0.4, 1);
 
 
         double predict_up = correct_w_mass_neuro_predict[0];
